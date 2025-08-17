@@ -9,8 +9,7 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    private let slotMachineView = DrawTicketSlotMachineView()
-    private let spinButton = UIButton()
+    private var slotMachineView: DrawTicketSlotMachineView!
     
     private let dummyItems: [SlotItem] = [
         SlotItem(id: "1", title: "Free Ticket", image: UIImage(systemName: "ticket.fill"), color: .systemYellow),
@@ -22,8 +21,9 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        view.backgroundColor = Color.background
         
+        let slotMachineView = DrawTicketSlotMachineView()
         slotMachineView.viewModel.setItems(dummyItems)
         slotMachineView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slotMachineView)
@@ -32,7 +32,9 @@ class ViewController: UIViewController {
             slotMachineView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             slotMachineView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
+        self.slotMachineView = slotMachineView
         
+        let spinButton = UIButton()
         spinButton.setTitle("Spin", for: .normal)
         spinButton.backgroundColor = .systemBlue
         spinButton.addTarget(self, action: #selector(spinButtonTapped), for: .touchUpInside)

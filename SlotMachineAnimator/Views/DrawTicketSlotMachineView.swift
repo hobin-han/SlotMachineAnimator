@@ -30,7 +30,9 @@ class DrawTicketSlotMachineView: UIView {
     private weak var topTableView: UIView!
     
     private lazy var flowLayout: DrawTicketFlowLayout = {
-        DrawTicketFlowLayout(delegate: self, cellHeight: cellHeight, centerCellHeight: centerCellHeight)
+        let layout = DrawTicketFlowLayout(cellHeight: cellHeight, centerCellHeight: centerCellHeight)
+        layout.delegate = self
+        return layout
     }()
     
     private var cancellableBag = Set<AnyCancellable>()
@@ -64,9 +66,8 @@ class DrawTicketSlotMachineView: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.isScrollEnabled = true
         collectionView.showsVerticalScrollIndicator = false
-        collectionView.register(DrawTicketSlotMachineCell.self, forCellWithReuseIdentifier: self.cellId)
+        collectionView.register(DrawTicketSlotMachineCell.self, forCellWithReuseIdentifier: cellId)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         tableBaseView.addSubview(collectionView)
         NSLayoutConstraint.activate([
@@ -80,14 +81,11 @@ class DrawTicketSlotMachineView: UIView {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.isUserInteractionEnabled = false
-        let outsideAlphaHeight = self.cellHeight
-        let besideAlphaHeight = self.cellHeight + self.centerCellMargin
-        let centerAlphaHeight = self.centerCellHeight - 2 * self.centerCellMargin
-        let heights = [CGFloat](arrayLiteral: outsideAlphaHeight, outsideAlphaHeight, besideAlphaHeight, centerAlphaHeight, besideAlphaHeight, outsideAlphaHeight, outsideAlphaHeight)
+        let heights = [CGFloat](arrayLiteral: cellHeight, cellHeight, cellHeight, centerCellHeight, cellHeight, cellHeight, cellHeight)
         let alphas = [CGFloat](arrayLiteral: 0.9, 0.8, 0.7, 0, 0.7, 0.8, 0.9)
         for (index, alpha) in alphas.enumerated() {
             let view = UIView()
-            view.backgroundColor = UIColor.black.withAlphaComponent(alpha)
+            view.backgroundColor = Color.background?.withAlphaComponent(alpha)
             stackView.addArrangedSubview(view)
             view.heightAnchor.constraint(equalToConstant: heights[index]).isActive = true
         }
@@ -103,7 +101,7 @@ class DrawTicketSlotMachineView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.collectionView.collectionViewLayout.invalidateLayout()
+        collectionView.collectionViewLayout.invalidateLayout()
     }
     
     private func observe() {
@@ -121,8 +119,8 @@ class DrawTicketSlotMachineView: UIView {
                     self.collectionView.collectionViewLayout.invalidateLayout()
                     self.collectionView.layoutIfNeeded()
                     
-                    // collectionView.layoutIfNeeded 호출되면서 간헐적으로 scrollViewDidScroll(zero offest)이 호출되는 경우가 있다
-                    // 이 경우 초기 offset 재설정
+                    // Invoking collectionView.layoutIfNeeded can intermittently call scrollViewDidScroll with a zero offset.
+                    // Handle this case by resetting the initial offset.
                     if self.collectionView.contentOffset.y == 0 {
                         self.collectionView(scrollToItemCenter: self.viewModel.startCenterIndexPath, animated: false)
                     }
@@ -234,31 +232,36 @@ class DrawTicketSlotMachineView: UIView {
         
         displayLink.add(to: .current, forMode: .common)
     }
+    
     func getBetweenRows(from: IndexPath, to: IndexPath, rowsInSection: Int) -> Int {
         return (to.section - from.section) * rowsInSection + (to.row - from.row)
     }
-    func stopDisplayLink() {
+    
+    private func stopDisplayLink() {
         displayLink.invalidate()
-        
-//        self.viewModel.state = .rollEnded
+        viewModel.finishRolling()
     }
 }
 
 extension DrawTicketSlotMachineView: DrawTicketFlowLayoutDelegate {
+    
     func collectionView(centerdIndexPath collectionView: UICollectionView) -> IndexPath {
         return collectionView.indexPathForItem(at: collectionView.bounds.center) ?? viewModel.startCenterIndexPath
     }
 }
 
 extension DrawTicketSlotMachineView {
+    
     func collectionView(scrollToItemCenter indexPath: IndexPath, animated: Bool) {
         let numberOfItems = viewModel.numberOfItems
         let y = CGFloat(indexPath.section * numberOfItems + indexPath.row - 3) * cellHeight
         collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
     }
+    
     func collectionView(scrollToOffestY y: CGFloat, animated: Bool) {
         collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
     }
+    
     func collectionViewCenteredItemOffset(with indexPath: IndexPath) -> CGFloat {
         let itemNum = indexPath.section * viewModel.numberOfItems + indexPath.row - 3
         if itemNum > 0 { return CGFloat(itemNum) * cellHeight }
@@ -268,27 +271,27 @@ extension DrawTicketSlotMachineView {
 
 // MARK: Delegates
 extension DrawTicketSlotMachineView: UICollectionViewDelegate, UICollectionViewDataSource {
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.numberOfSections
+        viewModel.numberOfSections
     }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.numberOfItems
+        viewModel.numberOfItems
     }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as? DrawTicketSlotMachineCell else { return UICollectionViewCell() }
-        let item = viewModel.items[indexPath.row]
-        cell.configure(title: item.title, icon: item.image, color: item.color)
+        cell.configure(viewModel.items[indexPath.row])
         return cell
     }
 }
 
 extension DrawTicketSlotMachineView: UIScrollViewDelegate {
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        collectionView.collectionViewLayout.invalidateLayout() // cell 높이 & 위치 실시간으로 적용
+        collectionView.collectionViewLayout.invalidateLayout()
         
-        /*
-         스와이프 모션 이후, 자동 스크롤 되고 있을 때 일정 속도 이하인 경우 강제로 cell 중앙 이동
-         */
         let currentOffset = scrollView.contentOffset.y
         let currentTime = Date.timeIntervalSinceReferenceDate
         let timeDiff = currentTime - (lastScrollingTime ?? 0)
@@ -324,6 +327,7 @@ extension DrawTicketSlotMachineView: UIScrollViewDelegate {
             lastScrollingTime = currentTime
         }
     }
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if decelerate {
             // 무한 스크롤처럼 보이게 하기위해 사용자 스크롤 한번씩만 가능하도록 수정
@@ -333,20 +337,23 @@ extension DrawTicketSlotMachineView: UIScrollViewDelegate {
             collectionView(scrollToItemCenter: nowIndexPath, animated: true)
         }
     }
+    
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         isDecelerating = false
     }
+    
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
         isDecelerating = true
     }
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         isDecelerating = false
     }
+    
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         guard let row = toCenteredSectionRow else { return }
         toCenteredSectionRow = nil
         
-        // 무한 스크롤처럼 보이게 하기위해 스크롤이 멈추면, 동일 row 중앙 section 으로 이동시킴
         let toIndexPath = IndexPath(row: row, section: viewModel.numberOfSections / 2)
         collectionView(scrollToItemCenter: toIndexPath, animated: false)
         (collectionView.collectionViewLayout as? DrawTicketFlowLayout)?.centeredIndexPath = toIndexPath

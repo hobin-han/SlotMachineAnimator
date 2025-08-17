@@ -11,28 +11,28 @@ protocol DrawTicketFlowLayoutDelegate: AnyObject {
     func collectionView(centerdIndexPath collectionView: UICollectionView) -> IndexPath
 }
 
-class DrawTicketFlowLayout: UICollectionViewFlowLayout {
-    private weak var delegate: DrawTicketFlowLayoutDelegate!
-    private var cellHeight: CGFloat!
-    private var centerCellHeight: CGFloat!
+final class DrawTicketFlowLayout: UICollectionViewFlowLayout {
+    weak var delegate: DrawTicketFlowLayoutDelegate?
+    
+    private let cellHeight: CGFloat
+    private let centerCellHeight: CGFloat
+    
     var centeredIndexPath: IndexPath?
     
     private var cache = [UICollectionViewLayoutAttributes]()
+    
     private var numberOfSections: Int {
-        guard let collectionView = collectionView else { return 0 }
-        return collectionView.numberOfSections
+        collectionView?.numberOfSections ?? 0
     }
     private var numberOfItems: Int {
-        guard let collectionView = collectionView else { return 0 }
-        return collectionView.numberOfItems(inSection: 0)
+        collectionView?.numberOfItems(inSection: 0) ?? 0
     }
     
     
-    init(delegate: DrawTicketFlowLayoutDelegate, cellHeight: CGFloat, centerCellHeight: CGFloat) {
-        super.init()
-        self.delegate = delegate
+    init(cellHeight: CGFloat, centerCellHeight: CGFloat) {
         self.cellHeight = cellHeight
         self.centerCellHeight = centerCellHeight
+        super.init()
         
         minimumLineSpacing = 0
         scrollDirection = .vertical
@@ -57,7 +57,6 @@ class DrawTicketFlowLayout: UICollectionViewFlowLayout {
             }
         } else {
             if let centerIndexPath = centeredIndexPath {
-                // centeredIndexPath 값이 있으면, 해당 쎌이 중앙에 위치한다는 가정하에 frame 설정해주기
                 centeredIndexPath = nil
                 cache.forEach { attributes in
                     let indexPath = attributes.indexPath
@@ -84,6 +83,7 @@ class DrawTicketFlowLayout: UICollectionViewFlowLayout {
             }
         }
     }
+    
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         return true
     }
@@ -94,6 +94,15 @@ class DrawTicketFlowLayout: UICollectionViewFlowLayout {
         return CGSize(width: width, height: height)
     }
     
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        var layoutAttributes = [UICollectionViewLayoutAttributes]()
+        for attributes in cache {
+            if attributes.frame.intersects(rect) {
+                layoutAttributes.append(attributes)
+            }
+        }
+        return layoutAttributes
+    }
     
     private func getItemDifferenceNumber(_ indexPath: IndexPath, with centerdIndexPath: IndexPath) -> Int {
         return (indexPath.section - centerdIndexPath.section) * numberOfItems + indexPath.row - centerdIndexPath.row
@@ -108,7 +117,6 @@ class DrawTicketFlowLayout: UICollectionViewFlowLayout {
         let distance = cellY - collectionView.bounds.center.y
         if distance == 0 { return nil }
         if abs(distance) < (cellHeight + centerCellHeight) / 2 {
-            // 중앙 배치, cellHeight ~ centerCellHeight
             let fromHeight = cell.bounds.height
             let inclination: CGFloat = (cellHeight - centerCellHeight) / ((centerCellHeight + cellHeight) / 2.0)
             let toHeight = max(cellHeight, abs(distance) * inclination + centerCellHeight)
@@ -133,18 +141,17 @@ class DrawTicketFlowLayout: UICollectionViewFlowLayout {
             let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
             let y = CGFloat(itemNumberUpon) * cellHeight
             if distance < 0 {
-                // 상단 배치, cellHeight
                 return CGRect(x: 0, y: y, width: width, height: cellHeight)
             } else {
-                // 하단 배치, cellHeight
                 return CGRect(x: 0, y: y + centerCellHeight - cellHeight, width: width, height: cellHeight)
             }
         }
     }
+    
     private func originCellFrame(indexPath: IndexPath) -> CGRect {
-        guard let collectionView = collectionView else { return .zero }
+        guard let collectionView = collectionView,
+              let centerIndexPath = delegate?.collectionView(centerdIndexPath: collectionView) else { return .zero }
         let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
-        let centerIndexPath = delegate.collectionView(centerdIndexPath: collectionView)
         
         let width: CGFloat = collectionView.bounds.width
         let y = CGFloat(itemNumberUpon) * cellHeight
@@ -155,23 +162,5 @@ class DrawTicketFlowLayout: UICollectionViewFlowLayout {
         } else {
             return CGRect(x: 0, y: y + centerCellHeight - cellHeight, width: width, height: cellHeight)
         }
-    }
-    
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        var layoutAttributes = [UICollectionViewLayoutAttributes]()
-        for attributes in cache {
-            if attributes.frame.intersects(rect) {
-                layoutAttributes.append(attributes)
-            }
-        }
-        return layoutAttributes
-    }
-}
-
-
-extension CGRect {
-    
-    var center: CGPoint {
-        CGPoint(x: midX, y: midY)
     }
 }

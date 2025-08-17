@@ -9,10 +9,9 @@ import UIKit
 
 final class DrawTicketSlotMachineCell: UICollectionViewCell {
     
-    private let iconImageView = UIImageView()
-    private let titleLabel = UILabel()
-    private let quantityLabel = UILabel()
-    private let container = UIStackView()
+    private var iconImageView: UIImageView!
+    private var titleLabel: UILabel!
+    private var container: UIStackView!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,48 +29,42 @@ final class DrawTicketSlotMachineCell: UICollectionViewCell {
     }
 
     private func setup() {
-        contentView.backgroundColor = .black
-        contentView.clipsToBounds = false
-        clipsToBounds = false
+        contentView.backgroundColor = Color.background
         
-        iconImageView.contentMode = .scaleAspectFit
-        iconImageView.setContentHuggingPriority(.required, for: .horizontal)
-        iconImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
-
-        titleLabel.textColor = .white
-        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        titleLabel.textAlignment = .left
-        titleLabel.numberOfLines = 1
-
-        quantityLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        quantityLabel.textColor = .secondaryLabel
-        quantityLabel.textAlignment = .left
-
-        container.axis = .horizontal
+        let container = UIStackView()
         container.alignment = .center
         container.spacing = 8
         container.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(container)
-
-        let labels = UIStackView(arrangedSubviews: [titleLabel, quantityLabel])
-        labels.axis = .vertical
-        labels.alignment = .leading
-        labels.spacing = 2
-
-        container.addArrangedSubview(iconImageView)
-        container.addArrangedSubview(labels)
-
         NSLayoutConstraint.activate([
             container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             container.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
+        self.container = container
+        
+        let iconImageView = UIImageView()
+//        iconImageView.contentMode = .scaleAspectFit
+        iconImageView.setContentHuggingPriority(.required, for: .horizontal)
+        iconImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        container.addArrangedSubview(iconImageView)
+        self.iconImageView = iconImageView
+
+        let titleLabel = UILabel()
+        titleLabel.textColor = .white
+        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        container.addArrangedSubview(titleLabel)
+        self.titleLabel = titleLabel
     }
 
+    func configure(_ item: SlotItem) {
+        configure(title: item.title, icon: item.image, color: item.color)
+    }
+    
     func configure(title: String, icon: UIImage?, color: UIColor) {
+        contentView.backgroundColor = color
         titleLabel.text = title
         iconImageView.image = icon
-        contentView.backgroundColor = color
         iconImageView.isHidden = (icon == nil)
     }
 }
