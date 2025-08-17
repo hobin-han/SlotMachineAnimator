@@ -3,6 +3,10 @@
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
 ## User settings
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
 xcuserdata/
 
 ## Obj-C/Swift specific
@@ -48,15 +52,3 @@ playground.xcworkspace
 # Carthage/Checkouts
 
 Carthage/Build/
-
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo.
-# Instead, use fastlane to re-generate the screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/#source-control
-
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
