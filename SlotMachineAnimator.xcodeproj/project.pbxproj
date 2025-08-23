@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E48CD7B32E5978BD0065E1C5 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E48CD7B22E5978BD0065E1C5 /* SnapKit */; };
+		E4F8F8BE2E59790900D0CD56 /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = E4F8F8BD2E59790900D0CD56 /* SDWebImage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		E42A75E32E51FBA00027083D /* SlotMachineAnimator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlotMachineAnimator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -14,7 +19,7 @@
 		E42A760B2E51FBA00027083D /* Exceptions for "SlotMachineAnimator" folder in "SlotMachineAnimator" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Apps/Info.plist,
 			);
 			target = E42A75E22E51FBA00027083D /* SlotMachineAnimator */;
 		};
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4F8F8BE2E59790900D0CD56 /* SDWebImage in Frameworks */,
+				E48CD7B32E5978BD0065E1C5 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = SlotMachineAnimator;
 			packageProductDependencies = (
+				E48CD7B22E5978BD0065E1C5 /* SnapKit */,
+				E4F8F8BD2E59790900D0CD56 /* SDWebImage */,
 			);
 			productName = SlotMachineAnimator;
 			productReference = E42A75E32E51FBA00027083D /* SlotMachineAnimator.app */;
@@ -107,6 +116,10 @@
 			);
 			mainGroup = E42A75DA2E51FBA00027083D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E48CD7B12E5978BD0065E1C5 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				E4F8F8BC2E59790900D0CD56 /* XCRemoteSwiftPackageReference "SDWebImage" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E42A75E42E51FBA00027083D /* Products */;
 			projectDirPath = "";
@@ -146,7 +159,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SlotMachineAnimator/Info.plist;
+				INFOPLIST_FILE = SlotMachineAnimator/Apps/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -173,7 +186,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SlotMachineAnimator/Info.plist;
+				INFOPLIST_FILE = SlotMachineAnimator/Apps/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -333,6 +346,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E48CD7B12E5978BD0065E1C5 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+		E4F8F8BC2E59790900D0CD56 /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.21.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E48CD7B22E5978BD0065E1C5 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E48CD7B12E5978BD0065E1C5 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+		E4F8F8BD2E59790900D0CD56 /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4F8F8BC2E59790900D0CD56 /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E42A75DB2E51FBA00027083D /* Project object */;
 }
