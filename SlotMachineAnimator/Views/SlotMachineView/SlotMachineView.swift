@@ -7,8 +7,10 @@
 
 import UIKit
 import Combine
+import SnapKit
 
 class SlotMachineView: UIView {
+    
     let viewModel = SlotMachineViewModel()
     
     private let cellId = "slotMachineCell"
@@ -25,10 +27,12 @@ class SlotMachineView: UIView {
     private var toCenteredSectionRow: Int?
     
     // MARK: Views
-    private weak var tableBaseView: UIView!
-    private weak var collectionView: UICollectionView!
-    private weak var topTableView: UIView!
+    private let tableBaseView = UIView()
+    private let topTableView = UIView()
     
+    private lazy var collectionView = {
+        UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+    }()
     private lazy var flowLayout: SlotMachineFlowLayout = {
         SlotMachineFlowLayout(delegate: self, cellHeight: cellHeight, centerCellHeight: centerCellHeight)
     }()
@@ -37,45 +41,34 @@ class SlotMachineView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        initViews()
+        setupView()
         observe()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        initViews()
+        setupView()
         observe()
     }
     
-    private func initViews() {
+    private func setupView() {
         let tableBaseViewHeight = cellHeight * CGFloat(maxSlotCount - 1) + centerCellHeight
         
-        let tableBaseView = UIView()
         addSubview(tableBaseView)
-        tableBaseView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            tableBaseView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            tableBaseView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tableBaseView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            tableBaseView.heightAnchor.constraint(equalToConstant: tableBaseViewHeight),
-        ])
-        self.tableBaseView = tableBaseView
+        tableBaseView.snp.makeConstraints {
+            $0.leading.trailing.centerY.equalToSuperview()
+            $0.height.equalTo(tableBaseViewHeight)
+        }
         
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.isScrollEnabled = true
         collectionView.showsVerticalScrollIndicator = false
         collectionView.register(SlotMachineCollectionViewCell.self, forCellWithReuseIdentifier: self.cellId)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
         tableBaseView.addSubview(collectionView)
-        NSLayoutConstraint.activate([
-            collectionView.leadingAnchor.constraint(equalTo: tableBaseView.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: tableBaseView.trailingAnchor),
-            collectionView.topAnchor.constraint(equalTo: tableBaseView.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: tableBaseView.bottomAnchor),
-        ])
-        self.collectionView = collectionView
+        collectionView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
         
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -91,14 +84,10 @@ class SlotMachineView: UIView {
             stackView.addArrangedSubview(view)
             view.heightAnchor.constraint(equalToConstant: heights[index]).isActive = true
         }
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         tableBaseView.addSubview(stackView)
-        NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: tableBaseView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: tableBaseView.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: tableBaseView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: tableBaseView.bottomAnchor),
-        ])
+        stackView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
     
     override func layoutSubviews() {
