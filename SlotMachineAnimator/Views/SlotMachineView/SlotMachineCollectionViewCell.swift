@@ -37,11 +37,8 @@ final class SlotMachineCollectionViewCell: UICollectionViewCell {
     }
 
     private func setup() {
-        contentView.backgroundColor = .black
-        contentView.clipsToBounds = false
-        clipsToBounds = false
+        contentView.clipsToBounds = true
         
-        backgroundImageView.clipsToBounds = true
         backgroundImageView.contentMode = .scaleAspectFill
         contentView.addSubview(backgroundImageView)
         backgroundImageView.snp.makeConstraints {
