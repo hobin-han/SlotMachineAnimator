@@ -14,9 +14,15 @@ class SlotMachineView: UIView {
     let viewModel = SlotMachineViewModel()
     
     private let cellId = "SlotMachineCollectionViewCell"
-    private let maxSlotCount: Int = 7
-    internal let cellHeight: CGFloat = 60
+    private let visibleCellCount: Int = 7
+    internal let cellHeight: CGFloat = 50
     internal let centerCellHeight: CGFloat = 80
+    
+    private var visibleCellConfigs: [(CGFloat, CGFloat)] {
+        var result = [(CGFloat, CGFloat)](repeating: (cellHeight, CGFloat(0.5)), count: visibleCellCount)
+        result[visibleCellCount / 2] = (centerCellHeight, 0)
+        return result
+    }
     
     // 손으로 scroll 할때 정확히 cell 중앙에 위치하도록 설정을 위한 변수
     private var isDecelerating: Bool = false
@@ -48,7 +54,7 @@ class SlotMachineView: UIView {
     private func setupView() {
         flowLayout.delegate = self
         
-        let tableBaseViewHeight = cellHeight * CGFloat(maxSlotCount - 1) + centerCellHeight
+        let tableBaseViewHeight = cellHeight * CGFloat(visibleCellCount - 1) + centerCellHeight
         
         addSubview(tableBaseView)
         tableBaseView.snp.makeConstraints {
@@ -69,16 +75,11 @@ class SlotMachineView: UIView {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.isUserInteractionEnabled = false
-        let outsideAlphaHeight = cellHeight
-        let besideAlphaHeight = cellHeight
-        let centerAlphaHeight = centerCellHeight
-        let heights = [CGFloat](arrayLiteral: outsideAlphaHeight, outsideAlphaHeight, besideAlphaHeight, centerAlphaHeight, besideAlphaHeight, outsideAlphaHeight, outsideAlphaHeight)
-        let alphas = [CGFloat](arrayLiteral: 0.9, 0.8, 0.7, 0, 0.7, 0.8, 0.9)
-        for (index, alpha) in alphas.enumerated() {
+        visibleCellConfigs.forEach { (height, alpha) in
             let view = UIView()
             view.backgroundColor = UIColor.black.withAlphaComponent(alpha)
             stackView.addArrangedSubview(view)
-            view.heightAnchor.constraint(equalToConstant: heights[index]).isActive = true
+            view.heightAnchor.constraint(equalToConstant: height).isActive = true
         }
         tableBaseView.addSubview(stackView)
         stackView.snp.makeConstraints {
@@ -124,7 +125,7 @@ class SlotMachineView: UIView {
     
     func collectionView(scrollToItemCenter indexPath: IndexPath, animated: Bool) {
         let numberOfItems = viewModel.numberOfItems
-        let itemsAboveNum = indexPath.section * numberOfItems + indexPath.row - maxSlotCount / 2
+        let itemsAboveNum = indexPath.section * numberOfItems + indexPath.row - visibleCellCount / 2
         let y = CGFloat(itemsAboveNum) * cellHeight
         
         collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
@@ -213,7 +214,7 @@ class SlotMachineView: UIView {
         
         let fromOffset = collectionView.contentOffset.y
         let toIndexPath = IndexPath(row: toRow, section: nowIndexPath.section - minusSectionNum)
-        let toOffset = CGFloat((toIndexPath.section * viewModel.numberOfItems) + (toIndexPath.row) - (maxSlotCount / 2)) * cellHeight
+        let toOffset = CGFloat((toIndexPath.section * viewModel.numberOfItems) + (toIndexPath.row) - (visibleCellCount / 2)) * cellHeight
         
         startOffsetY = fromOffset
         endIndexPath = toIndexPath
