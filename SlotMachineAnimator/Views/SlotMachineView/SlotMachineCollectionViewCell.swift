@@ -1,5 +1,5 @@
 //
-//  DrawTicketSlotMachineCell.swift
+//  SlotMachineCollectionViewCell.swift
 //  SlotMachineAnimator
 //
 //  Created by Hobin Han on 8/17/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class DrawTicketSlotMachineCell: UICollectionViewCell {
+final class SlotMachineCollectionViewCell: UICollectionViewCell {
     
     private let backgroundImageView = UIImageView()
     private let titleLabel = UILabel()

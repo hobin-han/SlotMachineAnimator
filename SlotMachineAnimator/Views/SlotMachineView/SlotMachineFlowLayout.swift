@@ -7,12 +7,12 @@
 
 import UIKit
 
-protocol DrawTicketFlowLayoutDelegate: AnyObject {
+protocol SlotMachineFlowLayoutDelegate: AnyObject {
     func collectionView(centerdIndexPath collectionView: UICollectionView) -> IndexPath
 }
 
-class DrawTicketFlowLayout: UICollectionViewFlowLayout {
-    private weak var delegate: DrawTicketFlowLayoutDelegate!
+class SlotMachineFlowLayout: UICollectionViewFlowLayout {
+    private weak var delegate: SlotMachineFlowLayoutDelegate!
     private var cellHeight: CGFloat!
     private var centerCellHeight: CGFloat!
     var centeredIndexPath: IndexPath?
@@ -28,7 +28,7 @@ class DrawTicketFlowLayout: UICollectionViewFlowLayout {
     }
     
     
-    init(delegate: DrawTicketFlowLayoutDelegate, cellHeight: CGFloat, centerCellHeight: CGFloat) {
+    init(delegate: SlotMachineFlowLayoutDelegate, cellHeight: CGFloat, centerCellHeight: CGFloat) {
         super.init()
         self.delegate = delegate
         self.cellHeight = cellHeight

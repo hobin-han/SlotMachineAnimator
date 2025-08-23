@@ -1,5 +1,5 @@
 //
-//  DrawTicketSlotMachineViewModel.swift
+//  SlotMachineViewModel.swift
 //  SlotMachineAnimator
 //
 //  Created by Hobin Han on 8/17/25.
@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-final class DrawTicketSlotMachineViewModel {
+final class SlotMachineViewModel {
     
     enum State: Equatable {
         case idle

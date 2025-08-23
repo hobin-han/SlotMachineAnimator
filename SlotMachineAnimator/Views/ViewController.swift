@@ -9,7 +9,7 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    private let slotMachineView = DrawTicketSlotMachineView()
+    private let slotMachineView = SlotMachineView()
     private let spinButton = UIButton()
     
     private let dummyItems = SlotItemDTO.getItems()
