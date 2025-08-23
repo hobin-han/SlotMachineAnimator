@@ -106,46 +106,34 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
     }
     
     private func updateCellFrame(with indexPath: IndexPath) -> CGRect? {
-        guard let collectionView else { return .zero }
-        guard let cell = collectionView.cellForItem(at: indexPath) else { return nil }
+        guard let collectionView,
+              let cell = collectionView.cellForItem(at: indexPath) else { return nil }
+        
+        let cellRect = cell.convert(cell.bounds, to: collectionView)
+        let cellMinY = cellRect.minY
+        let cellMaxY = cellRect.maxY
+        let centerY = collectionView.bounds.center.y
+        
+        let minH = cellHeight
+        let maxH = centerCellHeight
+        
+        let prevItemCount = CGFloat(indexPath.section * numberOfItems + indexPath.row)
         
         let width = collectionView.bounds.width
-        
-        let cellY = cell.convert(cell.bounds, to: collectionView).center.y
-        let distance = cellY - collectionView.bounds.center.y
-        if distance == 0 { return nil }
-        if abs(distance) < (cellHeight + centerCellHeight) / 2 {
-            // 중앙 배치, cellHeight ~ centerCellHeight
-            let fromHeight = cell.bounds.height
-            let inclination: CGFloat = (cellHeight - centerCellHeight) / ((centerCellHeight + cellHeight) / 2.0)
-            let toHeight = max(cellHeight, abs(distance) * inclination + centerCellHeight)
-            let fromY = cellY - fromHeight / 2
-            var toY = fromY
-            
-            if fromHeight < toHeight {
-                if distance > 0 {
-                    toY -= (toHeight - fromHeight)
-                } else if distance < 0 {
-                    // pass
-                }
-            } else if fromHeight > toHeight {
-                if distance > 0 {
-                    toY += (fromHeight - toHeight)
-                } else if distance < 0 {
-                    // pass
-                }
-            }
-            return CGRect(x: 0, y: toY, width: width, height: toHeight)
+        let height: CGFloat
+        let y: CGFloat
+        if cellMaxY <= centerY - maxH / 2 {
+            height = minH
+            y = prevItemCount * minH
+        } else if cellMinY >= centerY + maxH / 2 {
+            height = minH
+            y = (prevItemCount - 1) * minH + maxH
         } else {
-            let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
-            let y = CGFloat(itemNumberUpon) * cellHeight
-            if distance < 0 {
-                // 상단 배치, cellHeight
-                return CGRect(x: 0, y: y, width: width, height: cellHeight)
-            } else {
-                // 하단 배치, cellHeight
-                return CGRect(x: 0, y: y + centerCellHeight - cellHeight, width: width, height: cellHeight)
-            }
+            let distance = cellRect.midY - centerY
+            let inclination = (minH - maxH) / ((maxH + minH) / 2.0)
+            height = inclination * abs(distance) + maxH
+            y = prevItemCount * minH + (cellRect.midY <= centerY ? 0 : maxH - height)
         }
+        return CGRect(x: 0, y: y, width: width, height: height)
     }
 }
