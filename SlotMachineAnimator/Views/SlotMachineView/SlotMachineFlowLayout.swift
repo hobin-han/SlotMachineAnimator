@@ -17,16 +17,16 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
     
     weak var delegate: SlotMachineFlowLayoutDelegate?
     
+    var centeredIndexPath: IndexPath?
+    
+    private var cache = [UICollectionViewLayoutAttributes]()
+    
     private var cellHeight: CGFloat {
         delegate?.cellHeight ?? 0
     }
     private var centerCellHeight: CGFloat {
         delegate?.centerCellHeight ?? 0
     }
-    
-    var centeredIndexPath: IndexPath?
-    
-    private var cache = [UICollectionViewLayoutAttributes]()
     private var numberOfSections: Int {
         collectionView?.numberOfSections ?? 0
     }
@@ -34,6 +34,11 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
         collectionView?.numberOfItems(inSection: 0) ?? 0
     }
     
+    override var collectionViewContentSize: CGSize {
+        let width = collectionView?.bounds.width ?? 0
+        let height = CGFloat(numberOfSections * numberOfItems - 1) * cellHeight + centerCellHeight
+        return CGSize(width: width, height: height)
+    }
     
     override init() {
         super.init()
@@ -45,66 +50,60 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
         setup()
     }
     
+    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        true
+    }
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        cache.filter { $0.frame.intersects(rect) }
+    }
+    
+    override func prepare() {
+        super.prepare()
+        cache.isEmpty ? initCache() : updateCache()
+    }
+    
     private func setup() {
         minimumLineSpacing = 0
         scrollDirection = .vertical
         estimatedItemSize = .zero // UICollectionViewFlowLayout.automaticSize
     }
     
-    override func prepare() {
-        super.prepare()
-        
-        if cache.isEmpty {
-            for section in 0..<numberOfSections {
-                for row in 0..<numberOfItems {
-                    let indexPath = IndexPath(row: row, section: section)
-                    let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
-                    attributes.frame = originCellFrame(indexPath: indexPath)
-                    cache.append(attributes)
-                }
-            }
-        } else {
-            if let centerIndexPath = centeredIndexPath {
-                // centeredIndexPath 값이 있으면, 해당 쎌이 중앙에 위치한다는 가정하에 frame 설정해주기
-                centeredIndexPath = nil
-                cache.forEach { attributes in
-                    let indexPath = attributes.indexPath
-                    let width: CGFloat = collectionView?.bounds.width ?? 0
-                    let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
-                    let y = CGFloat(itemNumberUpon) * cellHeight
-                    
-                    if attributes.indexPath == centerIndexPath {
-                        attributes.frame = CGRect(x: 0, y: y, width: width, height: centerCellHeight)
-                    } else {
-                        if indexPath < centerIndexPath {
-                            attributes.frame = CGRect(x: 0, y: y, width: width, height: cellHeight)
-                        } else {
-                            attributes.frame = CGRect(x: 0, y: y + (centerCellHeight - cellHeight), width: width, height: cellHeight)
-                        }
-                    }
-                }
-            } else {
-                cache.forEach { attributes in
-                    if let updatedFrame = updateCellFrame(with: attributes.indexPath) {
-                        attributes.frame = updatedFrame
-                    }
-                }
+    private func initCache() {
+        for section in 0..<numberOfSections {
+            for row in 0..<numberOfItems {
+                let indexPath = IndexPath(row: row, section: section)
+                let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
+                attributes.frame = originCellFrame(indexPath: indexPath)
+                cache.append(attributes)
             }
         }
     }
-    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        return true
-    }
     
-    override var collectionViewContentSize: CGSize {
-        let width = collectionView?.bounds.width ?? 0
-        let height = CGFloat(numberOfSections * numberOfItems) * cellHeight + (centerCellHeight - cellHeight)
-        return CGSize(width: width, height: height)
-    }
-    
-    
-    private func getItemDifferenceNumber(_ indexPath: IndexPath, with centerdIndexPath: IndexPath) -> Int {
-        return (indexPath.section - centerdIndexPath.section) * numberOfItems + indexPath.row - centerdIndexPath.row
+    private func updateCache() {
+        if let centerIndexPath = centeredIndexPath {
+            centeredIndexPath = nil
+            cache.forEach { attributes in
+                let indexPath = attributes.indexPath
+                let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
+                
+                let y = if indexPath <= centerIndexPath {
+                    CGFloat(itemNumberUpon) * cellHeight
+                } else {
+                    CGFloat(itemNumberUpon - 1) * cellHeight + centerCellHeight
+                }
+                let width: CGFloat = collectionView?.bounds.width ?? 0
+                let height = attributes.indexPath == centerIndexPath ? centerCellHeight : cellHeight
+                
+                attributes.frame = CGRect(x: 0, y: y, width: width, height: height)
+            }
+        } else {
+            cache.forEach { attributes in
+                if let updatedFrame = updateCellFrame(with: attributes.indexPath) {
+                    attributes.frame = updatedFrame
+                }
+            }
+        }
     }
     
     private func updateCellFrame(with indexPath: IndexPath) -> CGRect? {
@@ -163,16 +162,6 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
         } else {
             return CGRect(x: 0, y: y + centerCellHeight - cellHeight, width: width, height: cellHeight)
         }
-    }
-    
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        var layoutAttributes = [UICollectionViewLayoutAttributes]()
-        for attributes in cache {
-            if attributes.frame.intersects(rect) {
-                layoutAttributes.append(attributes)
-            }
-        }
-        return layoutAttributes
     }
 }
 
