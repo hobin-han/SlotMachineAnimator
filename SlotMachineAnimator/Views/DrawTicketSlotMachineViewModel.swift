@@ -5,25 +5,11 @@
 //  Created by Hobin Han on 8/17/25.
 //
 
-import UIKit
+import Foundation
 import Combine
 
-/// Minimal item representation for the slot machine.
-struct SlotItem: Equatable {
-    let id: String
-    let title: String
-    let image: UIImage?
-    let color: UIColor
-
-    init(id: String, title: String, image: UIImage?, color: UIColor) {
-        self.id = id
-        self.title = title
-        self.image = image
-        self.color = color
-    }
-}
-
 final class DrawTicketSlotMachineViewModel {
+    
     enum State: Equatable {
         case idle
         case ready
@@ -32,7 +18,7 @@ final class DrawTicketSlotMachineViewModel {
     }
 
     /// Data Source
-    private(set) var items: [SlotItem] = []
+    private(set) var items: [SlotItemDTO] = []
 
     /// Current state (notifies delegate on change)
     @Published var state: State = .idle
@@ -49,7 +35,7 @@ final class DrawTicketSlotMachineViewModel {
 
     init() {}
 
-    func setItems(_ items: [SlotItem]) {
+    public func setItems(_ items: [SlotItemDTO]) {
         self.items = items
         state = .ready
     }

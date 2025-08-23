@@ -12,13 +12,7 @@ class ViewController: UIViewController {
     private let slotMachineView = DrawTicketSlotMachineView()
     private let spinButton = UIButton()
     
-    private let dummyItems: [SlotItem] = [
-        SlotItem(id: "1", title: "Free Ticket", image: UIImage(systemName: "ticket.fill"), color: .systemYellow),
-        SlotItem(id: "2", title: "500 Cash", image: UIImage(systemName: "dollarsign.circle.fill"), color: .systemRed),
-        SlotItem(id: "3", title: "800 Cash", image: UIImage(systemName: "arrow.triangle.2.circlepath"), color: .systemTeal),
-        SlotItem(id: "4", title: "1000 Cash", image: UIImage(systemName: "dollarsign.circle.fill"), color: .systemGreen),
-        SlotItem(id: "5", title: "Golden Ticket", image: UIImage(systemName: "star.fill"), color: .systemOrange),
-    ]
+    private let dummyItems = SlotItemDTO.getItems()
     
     override func viewDidLoad() {
         super.viewDidLoad()

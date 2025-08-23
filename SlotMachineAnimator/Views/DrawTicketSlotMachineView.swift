@@ -277,7 +277,7 @@ extension DrawTicketSlotMachineView: UICollectionViewDelegate, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as? DrawTicketSlotMachineCell else { return UICollectionViewCell() }
         let item = viewModel.items[indexPath.row]
-        cell.configure(title: item.title, icon: item.image, color: item.color)
+        cell.configure(title: item.title, backgroundImage: item.imageUrl, color: item.color)
         return cell
     }
 }
