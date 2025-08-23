@@ -6,27 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		E42A75FA2E51FBA00027083D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E42A75DB2E51FBA00027083D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E42A75E22E51FBA00027083D;
-			remoteInfo = SlotMachineAnimator;
-		};
-		E42A76042E51FBA00027083D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E42A75DB2E51FBA00027083D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E42A75E22E51FBA00027083D;
-			remoteInfo = SlotMachineAnimator;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		E42A75E32E51FBA00027083D /* SlotMachineAnimator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlotMachineAnimator.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E42A75F92E51FBA00027083D /* SlotMachineAnimatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SlotMachineAnimatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		E42A76032E51FBA00027083D /* SlotMachineAnimatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SlotMachineAnimatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -48,34 +29,10 @@
 			path = SlotMachineAnimator;
 			sourceTree = "<group>";
 		};
-		E42A75FC2E51FBA00027083D /* SlotMachineAnimatorTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SlotMachineAnimatorTests;
-			sourceTree = "<group>";
-		};
-		E42A76062E51FBA00027083D /* SlotMachineAnimatorUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SlotMachineAnimatorUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		E42A75E02E51FBA00027083D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E42A75F62E51FBA00027083D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E42A76002E51FBA00027083D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -89,8 +46,6 @@
 			isa = PBXGroup;
 			children = (
 				E42A75E52E51FBA00027083D /* SlotMachineAnimator */,
-				E42A75FC2E51FBA00027083D /* SlotMachineAnimatorTests */,
-				E42A76062E51FBA00027083D /* SlotMachineAnimatorUITests */,
 				E42A75E42E51FBA00027083D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -99,8 +54,6 @@
 			isa = PBXGroup;
 			children = (
 				E42A75E32E51FBA00027083D /* SlotMachineAnimator.app */,
-				E42A75F92E51FBA00027083D /* SlotMachineAnimatorTests.xctest */,
-				E42A76032E51FBA00027083D /* SlotMachineAnimatorUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -130,52 +83,6 @@
 			productReference = E42A75E32E51FBA00027083D /* SlotMachineAnimator.app */;
 			productType = "com.apple.product-type.application";
 		};
-		E42A75F82E51FBA00027083D /* SlotMachineAnimatorTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E42A76112E51FBA00027083D /* Build configuration list for PBXNativeTarget "SlotMachineAnimatorTests" */;
-			buildPhases = (
-				E42A75F52E51FBA00027083D /* Sources */,
-				E42A75F62E51FBA00027083D /* Frameworks */,
-				E42A75F72E51FBA00027083D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				E42A75FB2E51FBA00027083D /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				E42A75FC2E51FBA00027083D /* SlotMachineAnimatorTests */,
-			);
-			name = SlotMachineAnimatorTests;
-			packageProductDependencies = (
-			);
-			productName = SlotMachineAnimatorTests;
-			productReference = E42A75F92E51FBA00027083D /* SlotMachineAnimatorTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		E42A76022E51FBA00027083D /* SlotMachineAnimatorUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E42A76142E51FBA00027083D /* Build configuration list for PBXNativeTarget "SlotMachineAnimatorUITests" */;
-			buildPhases = (
-				E42A75FF2E51FBA00027083D /* Sources */,
-				E42A76002E51FBA00027083D /* Frameworks */,
-				E42A76012E51FBA00027083D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				E42A76052E51FBA00027083D /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				E42A76062E51FBA00027083D /* SlotMachineAnimatorUITests */,
-			);
-			name = SlotMachineAnimatorUITests;
-			packageProductDependencies = (
-			);
-			productName = SlotMachineAnimatorUITests;
-			productReference = E42A76032E51FBA00027083D /* SlotMachineAnimatorUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -188,14 +95,6 @@
 				TargetAttributes = {
 					E42A75E22E51FBA00027083D = {
 						CreatedOnToolsVersion = 16.4;
-					};
-					E42A75F82E51FBA00027083D = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = E42A75E22E51FBA00027083D;
-					};
-					E42A76022E51FBA00027083D = {
-						CreatedOnToolsVersion = 16.4;
-						TestTargetID = E42A75E22E51FBA00027083D;
 					};
 				};
 			};
@@ -214,28 +113,12 @@
 			projectRoot = "";
 			targets = (
 				E42A75E22E51FBA00027083D /* SlotMachineAnimator */,
-				E42A75F82E51FBA00027083D /* SlotMachineAnimatorTests */,
-				E42A76022E51FBA00027083D /* SlotMachineAnimatorUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E42A75E12E51FBA00027083D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E42A75F72E51FBA00027083D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E42A76012E51FBA00027083D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -252,34 +135,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E42A75F52E51FBA00027083D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E42A75FF2E51FBA00027083D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		E42A75FB2E51FBA00027083D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E42A75E22E51FBA00027083D /* SlotMachineAnimator */;
-			targetProxy = E42A75FA2E51FBA00027083D /* PBXContainerItemProxy */;
-		};
-		E42A76052E51FBA00027083D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E42A75E22E51FBA00027083D /* SlotMachineAnimator */;
-			targetProxy = E42A76042E51FBA00027083D /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E42A760D2E51FBA00027083D /* Debug */ = {
@@ -455,74 +311,6 @@
 			};
 			name = Release;
 		};
-		E42A76122E51FBA00027083D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = hobin.SlotMachineAnimatorTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SlotMachineAnimator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SlotMachineAnimator";
-			};
-			name = Debug;
-		};
-		E42A76132E51FBA00027083D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = hobin.SlotMachineAnimatorTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SlotMachineAnimator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SlotMachineAnimator";
-			};
-			name = Release;
-		};
-		E42A76152E51FBA00027083D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = hobin.SlotMachineAnimatorUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = SlotMachineAnimator;
-			};
-			name = Debug;
-		};
-		E42A76162E51FBA00027083D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = hobin.SlotMachineAnimatorUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = SlotMachineAnimator;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -540,24 +328,6 @@
 			buildConfigurations = (
 				E42A760D2E51FBA00027083D /* Debug */,
 				E42A760E2E51FBA00027083D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E42A76112E51FBA00027083D /* Build configuration list for PBXNativeTarget "SlotMachineAnimatorTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E42A76122E51FBA00027083D /* Debug */,
-				E42A76132E51FBA00027083D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E42A76142E51FBA00027083D /* Build configuration list for PBXNativeTarget "SlotMachineAnimatorUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E42A76152E51FBA00027083D /* Debug */,
-				E42A76162E51FBA00027083D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
