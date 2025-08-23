@@ -26,7 +26,7 @@ struct SlotItemDTO {
         ]
         
         return images.enumerated().map {
-            SlotItemDTO(id: $0.offset, title: "Ticket \(String($0.offset + 1))", imageUrl: $0.element)
+            SlotItemDTO(id: $0.offset, title: "Item \(String($0.offset + 1))", imageUrl: $0.element)
         }
     }
 }
