@@ -11,8 +11,10 @@ protocol SlotMachineFlowLayoutDelegate: AnyObject {
     func collectionView(centerdIndexPath collectionView: UICollectionView) -> IndexPath
 }
 
-class SlotMachineFlowLayout: UICollectionViewFlowLayout {
-    private weak var delegate: SlotMachineFlowLayoutDelegate!
+final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
+    
+    weak var delegate: SlotMachineFlowLayoutDelegate?
+    
     private var cellHeight: CGFloat!
     private var centerCellHeight: CGFloat!
     var centeredIndexPath: IndexPath?
@@ -28,9 +30,8 @@ class SlotMachineFlowLayout: UICollectionViewFlowLayout {
     }
     
     
-    init(delegate: SlotMachineFlowLayoutDelegate, cellHeight: CGFloat, centerCellHeight: CGFloat) {
+    init(cellHeight: CGFloat, centerCellHeight: CGFloat) {
         super.init()
-        self.delegate = delegate
         self.cellHeight = cellHeight
         self.centerCellHeight = centerCellHeight
         
@@ -142,7 +143,7 @@ class SlotMachineFlowLayout: UICollectionViewFlowLayout {
         }
     }
     private func originCellFrame(indexPath: IndexPath) -> CGRect {
-        guard let collectionView = collectionView else { return .zero }
+        guard let collectionView, let delegate else { return .zero }
         let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
         let centerIndexPath = delegate.collectionView(centerdIndexPath: collectionView)
         

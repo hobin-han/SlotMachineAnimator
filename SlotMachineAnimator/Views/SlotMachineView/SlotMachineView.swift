@@ -13,28 +13,24 @@ class SlotMachineView: UIView {
     
     let viewModel = SlotMachineViewModel()
     
-    private let cellId = "slotMachineCell"
+    private let cellId = "SlotMachineCollectionViewCell"
     private let maxSlotCount: Int = 7
     private let cellHeight: CGFloat = 60
     private let centerCellHeight: CGFloat = 80
-    private let centerCellMargin: CGFloat = 0
     
     // 손으로 scroll 할때 정확히 cell 중앙에 위치하도록 설정을 위한 변수
     private var isDecelerating: Bool = false
     private var lastScrollingTime: TimeInterval?
     private var lastScrollingOffset: CGFloat?
-    
     private var toCenteredSectionRow: Int?
     
     // MARK: Views
     private let tableBaseView = UIView()
-    private let topTableView = UIView()
-    
     private lazy var collectionView = {
         UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     }()
     private lazy var flowLayout: SlotMachineFlowLayout = {
-        SlotMachineFlowLayout(delegate: self, cellHeight: cellHeight, centerCellHeight: centerCellHeight)
+        SlotMachineFlowLayout(cellHeight: cellHeight, centerCellHeight: centerCellHeight)
     }()
     
     private var cancellableBag = Set<AnyCancellable>()
@@ -52,6 +48,8 @@ class SlotMachineView: UIView {
     }
     
     private func setupView() {
+        flowLayout.delegate = self
+        
         let tableBaseViewHeight = cellHeight * CGFloat(maxSlotCount - 1) + centerCellHeight
         
         addSubview(tableBaseView)
@@ -64,7 +62,7 @@ class SlotMachineView: UIView {
         collectionView.dataSource = self
         collectionView.isScrollEnabled = true
         collectionView.showsVerticalScrollIndicator = false
-        collectionView.register(SlotMachineCollectionViewCell.self, forCellWithReuseIdentifier: self.cellId)
+        collectionView.register(SlotMachineCollectionViewCell.self, forCellWithReuseIdentifier: cellId)
         tableBaseView.addSubview(collectionView)
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -73,9 +71,9 @@ class SlotMachineView: UIView {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.isUserInteractionEnabled = false
-        let outsideAlphaHeight = self.cellHeight
-        let besideAlphaHeight = self.cellHeight + self.centerCellMargin
-        let centerAlphaHeight = self.centerCellHeight - 2 * self.centerCellMargin
+        let outsideAlphaHeight = cellHeight
+        let besideAlphaHeight = cellHeight
+        let centerAlphaHeight = centerCellHeight
         let heights = [CGFloat](arrayLiteral: outsideAlphaHeight, outsideAlphaHeight, besideAlphaHeight, centerAlphaHeight, besideAlphaHeight, outsideAlphaHeight, outsideAlphaHeight)
         let alphas = [CGFloat](arrayLiteral: 0.9, 0.8, 0.7, 0, 0.7, 0.8, 0.9)
         for (index, alpha) in alphas.enumerated() {
@@ -100,26 +98,26 @@ class SlotMachineView: UIView {
             .removeDuplicates()
             .receive(on: RunLoop.main)
             .sink { [weak self] state in
-                guard let self = self else { return }
+                guard let strongSelf = self else { return }
                 switch state {
                 case .ready:
-                    self.collectionView.reloadData()
+                    strongSelf.collectionView.reloadData()
                     
-                    self.collectionView(scrollToItemCenter: self.viewModel.startCenterIndexPath, animated: false)
-                    (self.collectionView.collectionViewLayout as? SlotMachineFlowLayout)?.centeredIndexPath = self.viewModel.startCenterIndexPath
-                    self.collectionView.collectionViewLayout.invalidateLayout()
-                    self.collectionView.layoutIfNeeded()
+                    strongSelf.collectionView(scrollToItemCenter: strongSelf.viewModel.startCenterIndexPath, animated: false)
+                    (strongSelf.collectionView.collectionViewLayout as? SlotMachineFlowLayout)?.centeredIndexPath = strongSelf.viewModel.startCenterIndexPath
+                    strongSelf.collectionView.collectionViewLayout.invalidateLayout()
+                    strongSelf.collectionView.layoutIfNeeded()
                     
                     // collectionView.layoutIfNeeded 호출되면서 간헐적으로 scrollViewDidScroll(zero offest)이 호출되는 경우가 있다
                     // 이 경우 초기 offset 재설정
-                    if self.collectionView.contentOffset.y == 0 {
-                        self.collectionView(scrollToItemCenter: self.viewModel.startCenterIndexPath, animated: false)
+                    if strongSelf.collectionView.contentOffset.y == 0 {
+                        strongSelf.collectionView(scrollToItemCenter: strongSelf.viewModel.startCenterIndexPath, animated: false)
                     }
                 case .rolling(let target):
-                    self.collectionView.isUserInteractionEnabled = false
-                    self.isDecelerating = false
-                    self.collectionView.setContentOffset(self.collectionView.contentOffset, animated: false)
-                    self.startSlotMachine(to: target)
+                    strongSelf.collectionView.isUserInteractionEnabled = false
+                    strongSelf.isDecelerating = false
+                    strongSelf.collectionView.setContentOffset(strongSelf.collectionView.contentOffset, animated: false)
+                    strongSelf.startSlotMachine(to: target)
                 default: break
                 }
             }
