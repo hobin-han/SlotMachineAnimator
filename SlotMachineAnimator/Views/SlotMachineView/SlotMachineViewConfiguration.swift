@@ -10,14 +10,11 @@ import Foundation
 struct SlotMachineViewConfiguration {
     typealias Cell = (height: Int, alpha: Int)
     
-    let numberOfSection: Int = 50
     /// the value is must odd.
     let visibleCount: Int
     
     let centerHeight: CGFloat
     let otherHeight: CGFloat
-    
-    let items: [SlotMachineCellConfiguration]
     
     var visibleCellConfigs: [(CGFloat, CGFloat)] {
         let defaultConfig: (CGFloat, CGFloat) = (otherHeight, 0.5)

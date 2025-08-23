@@ -9,16 +9,17 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    private let slotMachineView = SlotMachineView()
+    private var slotMachineView: SlotMachineView!
     private let spinButton = UIButton()
     
-    private let dummyItems = SlotItemDTO.getItems()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         
-        slotMachineView.viewModel.setItems(dummyItems)
+        let config = SlotMachineViewConfiguration(visibleCount: 7, centerHeight: 80, otherHeight: 50)
+        let slotMachineView = SlotMachineView(config)
+        slotMachineView.viewModel.setItems(SlotItemDTO.getItems())
         slotMachineView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slotMachineView)
         NSLayoutConstraint.activate([
@@ -26,6 +27,7 @@ class ViewController: UIViewController {
             slotMachineView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             slotMachineView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
         ])
+        self.slotMachineView = slotMachineView
         
         spinButton.setTitle("Spin", for: .normal)
         spinButton.backgroundColor = .systemBlue

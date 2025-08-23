@@ -16,26 +16,26 @@ final class SlotMachineViewModel {
         case rolling(targetIndex: Int)
         case rollEnded(finalIndex: Int)
     }
+    
+    @Published var state: State = .idle
 
     /// Data Source
-    private(set) var items: [SlotItemDTO] = []
+    private(set) var items: [SlotMachineCellConfiguration] = []
 
-    /// Current state (notifies delegate on change)
-    @Published var state: State = .idle
 
     /// Number of sections to simulate "infinite" scrolling.
     /// Keep this reasonably large so users can flick a bunch.
-    var numberOfSections: Int = 50
+    let numberOfSections: Int = 50
 
-    /// Convenience
-    var numberOfItems: Int { items.count }
+    var numberOfItems: Int {
+        items.count
+    }
+    
     var startCenterIndexPath: IndexPath {
         IndexPath(item: 0, section: max(0, numberOfSections / 2))
     }
 
-    init() {}
-
-    func setItems(_ items: [SlotItemDTO]) {
+    func setItems(_ items: [SlotMachineCellConfiguration]) {
         self.items = items
         state = .ready
     }

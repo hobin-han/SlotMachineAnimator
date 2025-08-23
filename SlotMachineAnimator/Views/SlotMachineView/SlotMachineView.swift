@@ -14,13 +14,11 @@ class SlotMachineView: UIView {
     let viewModel = SlotMachineViewModel()
     
     private let cellId = "SlotMachineCollectionViewCell"
-    private let visibleCellCount: Int = 7
-    internal let cellHeight: CGFloat = 50
-    internal let centerCellHeight: CGFloat = 80
+    private let config: SlotMachineViewConfiguration
     
     private var visibleCellConfigs: [(CGFloat, CGFloat)] {
-        var result = [(CGFloat, CGFloat)](repeating: (cellHeight, CGFloat(0.5)), count: visibleCellCount)
-        result[visibleCellCount / 2] = (centerCellHeight, 0)
+        var result = [(CGFloat, CGFloat)](repeating: (cellHeight, CGFloat(0.5)), count: config.visibleCount)
+        result[config.visibleCount / 2] = (centerCellHeight, 0)
         return result
     }
     
@@ -38,16 +36,15 @@ class SlotMachineView: UIView {
     
     private var cancellableBag = Set<AnyCancellable>()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(_ config: SlotMachineViewConfiguration) {
+        self.config = config
+        super.init(frame: .zero)
         setupView()
         observe()
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupView()
-        observe()
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func setupView() {
@@ -76,7 +73,7 @@ class SlotMachineView: UIView {
         }
         addSubview(stackView)
         stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.leading.trailing.equalToSuperview()
         }
     }
     
@@ -124,7 +121,7 @@ class SlotMachineView: UIView {
     
     func collectionView(scrollToItemCenter indexPath: IndexPath, animated: Bool) {
         let numberOfItems = viewModel.numberOfItems
-        let itemsAboveNum = indexPath.section * numberOfItems + indexPath.row - visibleCellCount / 2
+        let itemsAboveNum = indexPath.section * numberOfItems + indexPath.row - config.visibleCount / 2
         let y = CGFloat(itemsAboveNum) * cellHeight
         
         collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
@@ -213,7 +210,7 @@ class SlotMachineView: UIView {
         
         let fromOffset = collectionView.contentOffset.y
         let toIndexPath = IndexPath(row: toRow, section: nowIndexPath.section - minusSectionNum)
-        let toOffset = CGFloat((toIndexPath.section * viewModel.numberOfItems) + (toIndexPath.row) - (visibleCellCount / 2)) * cellHeight
+        let toOffset = CGFloat((toIndexPath.section * viewModel.numberOfItems) + (toIndexPath.row) - (config.visibleCount / 2)) * cellHeight
         
         startOffsetY = fromOffset
         endIndexPath = toIndexPath
@@ -237,6 +234,13 @@ class SlotMachineView: UIView {
 
 // MARK: - SlotMachineFlowLayoutDelegate
 extension SlotMachineView: SlotMachineFlowLayoutDelegate {
+    var cellHeight: CGFloat {
+        config.otherHeight
+    }
+    
+    var centerCellHeight: CGFloat {
+        config.centerHeight
+    }
     
     var centeredIndexPath: IndexPath {
         collectionView.indexPathForItem(at: collectionView.bounds.center) ?? viewModel.startCenterIndexPath
