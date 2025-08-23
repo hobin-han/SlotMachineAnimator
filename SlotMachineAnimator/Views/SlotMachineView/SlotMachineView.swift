@@ -31,7 +31,6 @@ class SlotMachineView: UIView {
     private var toCenteredSectionRow: Int?
     
     // MARK: Views
-    private let tableBaseView = UIView()
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: SlotMachineFlowLayout())
     private var flowLayout: SlotMachineFlowLayout {
         collectionView.collectionViewLayout as! SlotMachineFlowLayout
@@ -54,22 +53,16 @@ class SlotMachineView: UIView {
     private func setupView() {
         flowLayout.delegate = self
         
-        let tableBaseViewHeight = cellHeight * CGFloat(visibleCellCount - 1) + centerCellHeight
-        
-        addSubview(tableBaseView)
-        tableBaseView.snp.makeConstraints {
-            $0.leading.trailing.centerY.equalToSuperview()
-            $0.height.equalTo(tableBaseViewHeight)
-        }
+        let visibleHeight = visibleCellConfigs.reduce(0) { $0 + $1.0 }
         
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.isScrollEnabled = true
         collectionView.showsVerticalScrollIndicator = false
         collectionView.register(SlotMachineCollectionViewCell.self, forCellWithReuseIdentifier: cellId)
-        tableBaseView.addSubview(collectionView)
+        addSubview(collectionView)
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
+            $0.height.equalTo(visibleHeight)
         }
         
         let stackView = UIStackView()
@@ -81,7 +74,7 @@ class SlotMachineView: UIView {
             stackView.addArrangedSubview(view)
             view.heightAnchor.constraint(equalToConstant: height).isActive = true
         }
-        tableBaseView.addSubview(stackView)
+        addSubview(stackView)
         stackView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -89,7 +82,7 @@ class SlotMachineView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        self.collectionView.collectionViewLayout.invalidateLayout()
+        flowLayout.invalidateLayout()
     }
     
     private func observe() {
@@ -100,18 +93,7 @@ class SlotMachineView: UIView {
                 guard let strongSelf = self else { return }
                 switch state {
                 case .ready:
-                    strongSelf.collectionView.reloadData()
-                    
-                    strongSelf.collectionView(scrollToItemCenter: strongSelf.viewModel.startCenterIndexPath, animated: false)
-                    (strongSelf.collectionView.collectionViewLayout as? SlotMachineFlowLayout)?.centeredIndexPath = strongSelf.viewModel.startCenterIndexPath
-                    strongSelf.collectionView.collectionViewLayout.invalidateLayout()
-                    strongSelf.collectionView.layoutIfNeeded()
-                    
-                    // collectionView.layoutIfNeeded 호출되면서 간헐적으로 scrollViewDidScroll(zero offest)이 호출되는 경우가 있다
-                    // 이 경우 초기 offset 재설정
-                    if strongSelf.collectionView.contentOffset.y == 0 {
-                        strongSelf.collectionView(scrollToItemCenter: strongSelf.viewModel.startCenterIndexPath, animated: false)
-                    }
+                    strongSelf.updateCollectionView()
                 case .rolling(let target):
                     strongSelf.collectionView.isUserInteractionEnabled = false
                     strongSelf.isDecelerating = false
@@ -121,6 +103,23 @@ class SlotMachineView: UIView {
                 }
             }
             .store(in: &cancellableBag)
+    }
+    
+    private func updateCollectionView() {
+        collectionView.reloadData()
+        
+        let toIndexPath = viewModel.startCenterIndexPath
+        
+        collectionView(scrollToItemCenter: toIndexPath, animated: false)
+        flowLayout.centeredIndexPath = toIndexPath
+        collectionView.collectionViewLayout.invalidateLayout()
+        collectionView.layoutIfNeeded()
+        
+        // collectionView.layoutIfNeeded 호출되면서 간헐적으로 scrollViewDidScroll(zero offest)이 호출되는 경우가 있다
+        // 이 경우 초기 offset 재설정
+        if collectionView.contentOffset.y == 0 {
+            collectionView(scrollToItemCenter: toIndexPath, animated: false)
+        }
     }
     
     func collectionView(scrollToItemCenter indexPath: IndexPath, animated: Bool) {
@@ -263,7 +262,7 @@ extension SlotMachineView: UICollectionViewDelegate, UICollectionViewDataSource 
 // MARK: - UIScrollView Delegate
 extension SlotMachineView: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        collectionView.collectionViewLayout.invalidateLayout() // cell 높이 & 위치 실시간으로 적용
+        flowLayout.invalidateLayout() // cell 높이 & 위치 실시간으로 적용
         
         /*
          스와이프 모션 이후, 자동 스크롤 되고 있을 때 일정 속도 이하인 경우 강제로 cell 중앙 이동
@@ -328,7 +327,7 @@ extension SlotMachineView: UIScrollViewDelegate {
         // 무한 스크롤처럼 보이게 하기위해 스크롤이 멈추면, 동일 row 중앙 section 으로 이동시킴
         let toIndexPath = IndexPath(row: row, section: viewModel.numberOfSections / 2)
         collectionView(scrollToItemCenter: toIndexPath, animated: false)
-        (collectionView.collectionViewLayout as? SlotMachineFlowLayout)?.centeredIndexPath = toIndexPath
+        flowLayout.centeredIndexPath = toIndexPath
         collectionView.collectionViewLayout.invalidateLayout()
         collectionView.layoutIfNeeded()
         
