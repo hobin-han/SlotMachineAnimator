@@ -74,7 +74,6 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
             for row in 0..<numberOfItems {
                 let indexPath = IndexPath(row: row, section: section)
                 let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
-                attributes.frame = originCellFrame(indexPath: indexPath)
                 cache.append(attributes)
             }
         }
@@ -84,18 +83,7 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
         if let centerIndexPath = centeredIndexPath {
             centeredIndexPath = nil
             cache.forEach { attributes in
-                let indexPath = attributes.indexPath
-                let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
-                
-                let y = if indexPath <= centerIndexPath {
-                    CGFloat(itemNumberUpon) * cellHeight
-                } else {
-                    CGFloat(itemNumberUpon - 1) * cellHeight + centerCellHeight
-                }
-                let width: CGFloat = collectionView?.bounds.width ?? 0
-                let height = attributes.indexPath == centerIndexPath ? centerCellHeight : cellHeight
-                
-                attributes.frame = CGRect(x: 0, y: y, width: width, height: height)
+                attributes.frame = cellRect(indexPath: attributes.indexPath, centerIndexPath: centerIndexPath)
             }
         } else {
             cache.forEach { attributes in
@@ -106,11 +94,23 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
         }
     }
     
+    private func cellRect(indexPath: IndexPath, centerIndexPath: IndexPath) -> CGRect {
+        guard let collectionView else { return .zero }
+        let itemsAboveCount = indexPath.section * numberOfItems + indexPath.row
+        
+        let y = indexPath <= centerIndexPath ? CGFloat(itemsAboveCount) * cellHeight : CGFloat(itemsAboveCount - 1) * cellHeight + centerCellHeight
+        let width = collectionView.bounds.width
+        let height = indexPath == centerIndexPath ? centerCellHeight : cellHeight
+        
+        return CGRect(x: 0, y: y, width: width, height: height)
+    }
+    
     private func updateCellFrame(with indexPath: IndexPath) -> CGRect? {
-        guard let collectionView = collectionView else { return .zero }
+        guard let collectionView else { return .zero }
         guard let cell = collectionView.cellForItem(at: indexPath) else { return nil }
         
-        let width: CGFloat = collectionView.bounds.width
+        let width = collectionView.bounds.width
+        
         let cellY = cell.convert(cell.bounds, to: collectionView).center.y
         let distance = cellY - collectionView.bounds.center.y
         if distance == 0 { return nil }
@@ -146,21 +146,6 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
                 // 하단 배치, cellHeight
                 return CGRect(x: 0, y: y + centerCellHeight - cellHeight, width: width, height: cellHeight)
             }
-        }
-    }
-    private func originCellFrame(indexPath: IndexPath) -> CGRect {
-        guard let collectionView, let delegate else { return .zero }
-        let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
-        let centerIndexPath = delegate.centeredIndexPath
-        
-        let width: CGFloat = collectionView.bounds.width
-        let y = CGFloat(itemNumberUpon) * cellHeight
-        if indexPath == centerIndexPath {
-            return CGRect(x: 0, y: y, width: width, height: centerCellHeight)
-        } else if indexPath.section < centerIndexPath.section || indexPath.section == centerIndexPath.section && indexPath.row < centerIndexPath.row {
-            return CGRect(x: 0, y: y, width: width, height: cellHeight)
-        } else {
-            return CGRect(x: 0, y: y + centerCellHeight - cellHeight, width: width, height: cellHeight)
         }
     }
 }
