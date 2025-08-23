@@ -8,40 +8,47 @@
 import UIKit
 
 protocol SlotMachineFlowLayoutDelegate: AnyObject {
-    func collectionView(centerdIndexPath collectionView: UICollectionView) -> IndexPath
+    var cellHeight: CGFloat { get }
+    var centerCellHeight: CGFloat { get }
+    var centeredIndexPath: IndexPath { get }
 }
 
 final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
     
     weak var delegate: SlotMachineFlowLayoutDelegate?
     
-    private var cellHeight: CGFloat!
-    private var centerCellHeight: CGFloat!
+    private var cellHeight: CGFloat {
+        delegate?.cellHeight ?? 0
+    }
+    private var centerCellHeight: CGFloat {
+        delegate?.centerCellHeight ?? 0
+    }
+    
     var centeredIndexPath: IndexPath?
     
     private var cache = [UICollectionViewLayoutAttributes]()
     private var numberOfSections: Int {
-        guard let collectionView = collectionView else { return 0 }
-        return collectionView.numberOfSections
+        collectionView?.numberOfSections ?? 0
     }
     private var numberOfItems: Int {
-        guard let collectionView = collectionView else { return 0 }
-        return collectionView.numberOfItems(inSection: 0)
+        collectionView?.numberOfItems(inSection: 0) ?? 0
     }
     
     
-    init(cellHeight: CGFloat, centerCellHeight: CGFloat) {
+    override init() {
         super.init()
-        self.cellHeight = cellHeight
-        self.centerCellHeight = centerCellHeight
-        
-        minimumLineSpacing = 0
-        scrollDirection = .vertical
-        estimatedItemSize = .zero // UICollectionViewFlowLayout.automaticSize
+        setup()
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        setup()
+    }
+    
+    private func setup() {
+        minimumLineSpacing = 0
+        scrollDirection = .vertical
+        estimatedItemSize = .zero // UICollectionViewFlowLayout.automaticSize
     }
     
     override func prepare() {
@@ -145,7 +152,7 @@ final class SlotMachineFlowLayout: UICollectionViewFlowLayout {
     private func originCellFrame(indexPath: IndexPath) -> CGRect {
         guard let collectionView, let delegate else { return .zero }
         let itemNumberUpon = indexPath.section * numberOfItems + indexPath.row
-        let centerIndexPath = delegate.collectionView(centerdIndexPath: collectionView)
+        let centerIndexPath = delegate.centeredIndexPath
         
         let width: CGFloat = collectionView.bounds.width
         let y = CGFloat(itemNumberUpon) * cellHeight

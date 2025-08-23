@@ -15,8 +15,8 @@ class SlotMachineView: UIView {
     
     private let cellId = "SlotMachineCollectionViewCell"
     private let maxSlotCount: Int = 7
-    private let cellHeight: CGFloat = 60
-    private let centerCellHeight: CGFloat = 80
+    internal let cellHeight: CGFloat = 60
+    internal let centerCellHeight: CGFloat = 80
     
     // 손으로 scroll 할때 정확히 cell 중앙에 위치하도록 설정을 위한 변수
     private var isDecelerating: Bool = false
@@ -26,12 +26,10 @@ class SlotMachineView: UIView {
     
     // MARK: Views
     private let tableBaseView = UIView()
-    private lazy var collectionView = {
-        UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
-    }()
-    private lazy var flowLayout: SlotMachineFlowLayout = {
-        SlotMachineFlowLayout(cellHeight: cellHeight, centerCellHeight: centerCellHeight)
-    }()
+    private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: SlotMachineFlowLayout())
+    private var flowLayout: SlotMachineFlowLayout {
+        collectionView.collectionViewLayout as! SlotMachineFlowLayout
+    }
     
     private var cancellableBag = Set<AnyCancellable>()
     
@@ -124,7 +122,13 @@ class SlotMachineView: UIView {
             .store(in: &cancellableBag)
     }
     
-    
+    func collectionView(scrollToItemCenter indexPath: IndexPath, animated: Bool) {
+        let numberOfItems = viewModel.numberOfItems
+        let itemsAboveNum = indexPath.section * numberOfItems + indexPath.row - maxSlotCount / 2
+        let y = CGFloat(itemsAboveNum) * cellHeight
+        
+        collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
+    }
     
     // MARK: Slot Machine Animation
     lazy var displayLink: CADisplayLink = {
@@ -231,29 +235,15 @@ class SlotMachineView: UIView {
     }
 }
 
+// MARK: - SlotMachineFlowLayoutDelegate
 extension SlotMachineView: SlotMachineFlowLayoutDelegate {
-    func collectionView(centerdIndexPath collectionView: UICollectionView) -> IndexPath {
-        return collectionView.indexPathForItem(at: collectionView.bounds.center) ?? viewModel.startCenterIndexPath
+    
+    var centeredIndexPath: IndexPath {
+        collectionView.indexPathForItem(at: collectionView.bounds.center) ?? viewModel.startCenterIndexPath
     }
 }
 
-extension SlotMachineView {
-    func collectionView(scrollToItemCenter indexPath: IndexPath, animated: Bool) {
-        let numberOfItems = viewModel.numberOfItems
-        let y = CGFloat(indexPath.section * numberOfItems + indexPath.row - 3) * cellHeight
-        collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
-    }
-    func collectionView(scrollToOffestY y: CGFloat, animated: Bool) {
-        collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
-    }
-    func collectionViewCenteredItemOffset(with indexPath: IndexPath) -> CGFloat {
-        let itemNum = indexPath.section * viewModel.numberOfItems + indexPath.row - 3
-        if itemNum > 0 { return CGFloat(itemNum) * cellHeight }
-        return 0
-    }
-}
-
-// MARK: Delegates
+// MARK: - UICollectionView Delegate & DataSource
 extension SlotMachineView: UICollectionViewDelegate, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return viewModel.numberOfSections
@@ -269,6 +259,7 @@ extension SlotMachineView: UICollectionViewDelegate, UICollectionViewDataSource 
     }
 }
 
+// MARK: - UIScrollView Delegate
 extension SlotMachineView: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         collectionView.collectionViewLayout.invalidateLayout() // cell 높이 & 위치 실시간으로 적용
