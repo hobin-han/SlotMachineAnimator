@@ -12,6 +12,7 @@ class ViewController: UIViewController {
     private var slotMachineView: SlotMachineView!
     private let spinButton = UIButton()
     
+    private let items = SlotItemDTO.getItems()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,7 +20,7 @@ class ViewController: UIViewController {
         
         let config = SlotMachineViewConfiguration(visibleCount: 7, centerHeight: 80, otherHeight: 50)
         let slotMachineView = SlotMachineView(config)
-        slotMachineView.viewModel.setItems(SlotItemDTO.getItems())
+        slotMachineView.viewModel.setItems(items)
         slotMachineView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slotMachineView)
         NSLayoutConstraint.activate([
@@ -45,6 +46,6 @@ class ViewController: UIViewController {
     @objc private func spinButtonTapped(_ button: UIButton) {
         button.isEnabled = false
         button.backgroundColor = .systemGray
-        slotMachineView.viewModel.startRolling(to: 0)
+        slotMachineView.viewModel.startRolling(to: (0..<items.count).random)
     }
 }

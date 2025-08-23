@@ -16,8 +16,20 @@ class SlotMachineView: UIView {
     private let cellId = "SlotMachineCollectionViewCell"
     private let config: SlotMachineViewConfiguration
     
-    // 손으로 scroll 할때 정확히 cell 중앙에 위치하도록 설정을 위한 변수
+    private var animator: SlotMachineAnimator?
+    private lazy var animationDisplayLink: CADisplayLink = {
+        let displayLink = CADisplayLink(target: self, selector: #selector(scrollLayerScroll))
+        displayLink.preferredFramesPerSecond = 60
+        return displayLink
+    }()
+    
+    private var centerIndexPath: IndexPath {
+        collectionView.indexPathForItem(at: collectionView.bounds.center) ?? viewModel.startCenterIndexPath
+    }
+    
     private var isDecelerating: Bool = false
+    
+    // 손으로 scroll 할때 정확히 cell 중앙에 위치하도록 설정을 위한 변수
     private var lastScrollingTime: TimeInterval?
     private var lastScrollingOffset: CGFloat?
     private var toCenteredSectionRow: Int?
@@ -59,13 +71,13 @@ class SlotMachineView: UIView {
         
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.isUserInteractionEnabled = false
         visibleCellConfigs.forEach { (height, alpha) in
             let view = UIView()
             view.backgroundColor = UIColor.black.withAlphaComponent(alpha)
             stackView.addArrangedSubview(view)
             view.heightAnchor.constraint(equalToConstant: height).isActive = true
         }
+        stackView.isUserInteractionEnabled = false
         addSubview(stackView)
         stackView.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
@@ -84,14 +96,14 @@ class SlotMachineView: UIView {
             .sink { [weak self] state in
                 guard let strongSelf = self else { return }
                 switch state {
+                case .idle: break
                 case .ready:
                     strongSelf.updateCollectionView()
                 case .rolling(let target):
-                    strongSelf.collectionView.isUserInteractionEnabled = false
-                    strongSelf.isDecelerating = false
-                    strongSelf.collectionView.setContentOffset(strongSelf.collectionView.contentOffset, animated: false)
-                    strongSelf.startSlotMachine(to: target)
-                default: break
+                    strongSelf.animateSlotMachine(to: target)
+                case .rollEnded(let target):
+                    let item = strongSelf.viewModel.items[target]
+                    print("finish 🎉 \(item)") // TODO: show view
                 }
             }
             .store(in: &cancellableBag)
@@ -121,109 +133,60 @@ class SlotMachineView: UIView {
         
         collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: animated)
     }
+}
+
+// MARK: - Slot Machine Animation
+extension SlotMachineView {
     
-    // MARK: Slot Machine Animation
-    lazy var displayLink: CADisplayLink = {
-        let displayLink = CADisplayLink(target: self, selector: #selector(scrollLayerScroll))
-        displayLink.preferredFramesPerSecond = 60
-        return displayLink
-    }()
-    
-    var endIndexPath: IndexPath!
-    var nowIndexPath: IndexPath {
-        return collectionView.indexPathForItem(at: collectionView.bounds.center) ?? viewModel.startCenterIndexPath
-    }
-    var nowRemainRows: Int {
-        getBetweenRows(from: nowIndexPath, to: endIndexPath, rowsInSection: viewModel.numberOfItems)
-    }
-    var startOffsetY: CGFloat!
-    var endOffsetY: CGFloat!
-    var nowOffsetY: CGFloat {
-        return collectionView.contentOffset.y
-    }
-    
-    let inclination: CGFloat = 10
-    var slowStartOffsetY : CGFloat {
-        get {
-            if let endOffsetY = endOffsetY {
-                return endOffsetY + 6 * cellHeight
-            } else {
-                return 0
-            }
-        }
-    }
-    var maxX: CGFloat = 0
-    var x: CGFloat = 0
-    var isSlowing: Bool = false
-    var framePerSecond: Int = 1
-    var slowingY: CGFloat = 0
-    
-    @objc func scrollLayerScroll() {
-        if isSlowing {
-            displayLink.preferredFramesPerSecond = framePerSecond
-            framePerSecond = max(framePerSecond - 1, 1)
-            
-            
-            if nowOffsetY <= endOffsetY {
-                stopDisplayLink()
-            } else {
-                slowingY -= cellHeight
-                print(slowingY)
-                collectionView.setContentOffset(CGPoint(x: 0, y: slowingY), animated: true)
-            }
-        } else {
-            var y: CGFloat = pow(x - maxX, 2) / inclination + endOffsetY
-            y = round(y * 100) / 100 // 부동소수점 제거(소숫점 2자리 까지)
-            guard !y.isNaN else {
-                stopDisplayLink()
-                return;
-            }
-            collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: false)
-            
-            if nowOffsetY <= slowStartOffsetY {
-                slowingY = slowStartOffsetY
-                framePerSecond = 4
-                isSlowing = true
-            } else {
-                x += 1
-            }
-        }
-    }
-    
-    func startSlotMachine(to toRow: Int) {
-        let minusSectionNum: Int
-        switch viewModel.numberOfItems { // 돌릴 총 rows : 35 ~ 36
-        case 1:             minusSectionNum = 35
-        case 2:             minusSectionNum = 18
-        case 3:             minusSectionNum = 12
-        case 4:             minusSectionNum = 9
-        case 5:             minusSectionNum = 7
-        case 6:             minusSectionNum = 6
-        case 7, 8:          minusSectionNum = 5
-        default:            minusSectionNum = 4
-        }
+    private func animateSlotMachine(to row: Int) {
+        collectionView.isUserInteractionEnabled = false
+        collectionView.setContentOffset(collectionView.contentOffset, animated: false)
         
         let fromOffset = collectionView.contentOffset.y
-        let toIndexPath = IndexPath(row: toRow, section: nowIndexPath.section - minusSectionNum)
-        let toOffset = CGFloat((toIndexPath.section * viewModel.numberOfItems) + (toIndexPath.row) - (config.visibleCount / 2)) * cellHeight
+        let minusSectionNum = max(1, 40 / viewModel.numberOfItems)
+        let toIndexPath = IndexPath(row: row, section: centerIndexPath.section - minusSectionNum)
+        let itemAboveNum = toIndexPath.section * viewModel.numberOfItems + toIndexPath.row - config.visibleCount / 2
+        let toOffset = CGFloat(itemAboveNum) * cellHeight
+        animator = SlotMachineAnimator(cellHeight: cellHeight, startOffsetY: fromOffset, endOffsetY: toOffset, endIndexPath: toIndexPath)
+        isDecelerating = false
         
-        startOffsetY = fromOffset
-        endIndexPath = toIndexPath
-        endOffsetY = toOffset
-        
-        let diffOffset = fromOffset - toOffset
-        maxX = sqrt(diffOffset * inclination)
-        isSlowing = false
-        
-        displayLink.add(to: .current, forMode: .common)
+        animationDisplayLink.add(to: .current, forMode: .common)
     }
-    func getBetweenRows(from: IndexPath, to: IndexPath, rowsInSection: Int) -> Int {
-        return (to.section - from.section) * rowsInSection + (to.row - from.row)
+    
+    @objc private func scrollLayerScroll() {
+        guard let animator else { return }
+        animator.slowingY == 0 ? animateScollViewFastly(animator) : animateScrollViewSlowly(animator)
     }
-    func stopDisplayLink() {
-        displayLink.invalidate()
+    
+    private func animateScollViewFastly(_ animator: SlotMachineAnimator) {
+        let y = round(animator.y * 100) / 100 // 부동소수점 제거(소숫점 2자리 까지)
         
-//        self.viewModel.state = .rollEnded
+        collectionView.setContentOffset(CGPoint(x: 0, y: y), animated: false)
+        
+        if collectionView.contentOffset.y <= animator.slowStartOffsetY {
+            animator.slowingY = animator.slowStartOffsetY
+            animator.framePerSecond = 4
+        } else {
+            animator.plusX()
+        }
+    }
+    
+    private func animateScrollViewSlowly(_ animator: SlotMachineAnimator) {
+        animationDisplayLink.preferredFramesPerSecond = animator.framePerSecond
+        animator.framePerSecond = max(animator.framePerSecond - 1, 1)
+        
+        
+        if collectionView.contentOffset.y <= animator.endOffsetY {
+            stopDisplayLink()
+        } else {
+            animator.slowingY -= cellHeight
+            collectionView.setContentOffset(CGPoint(x: 0, y: animator.slowingY), animated: true)
+        }
+    }
+    
+    private func stopDisplayLink() {
+        animationDisplayLink.invalidate()
+        viewModel.finishRolling(at: centerIndexPath.row)
     }
 }
 
@@ -245,11 +208,13 @@ extension SlotMachineView: SlotMachineFlowLayoutDelegate {
 // MARK: - UICollectionView Delegate & DataSource
 extension SlotMachineView: UICollectionViewDelegate, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.numberOfSections
+        viewModel.numberOfSections
     }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.numberOfItems
+        viewModel.numberOfItems
     }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as? SlotMachineCollectionViewCell else { return UICollectionViewCell() }
         let item = viewModel.items[indexPath.row]
@@ -271,54 +236,55 @@ extension SlotMachineView: UIScrollViewDelegate {
         let timeDiff = currentTime - (lastScrollingTime ?? 0)
         if timeDiff > 0.1 {
             let distance = currentOffset - (lastScrollingOffset ?? 0)
-            
-            if (abs(distance) <= 100) {
-                if isDecelerating {
-                    isDecelerating = false
-                    var toIndexPath = nowIndexPath
-                    if distance < 0 {
-                        if toIndexPath.row == 0 {
-                            toIndexPath.section -= 1
-                            toIndexPath.row = viewModel.numberOfItems - 1
-                        } else {
-                            toIndexPath.row -= 1
-                        }
+            if abs(distance) <= 100 && isDecelerating {
+                isDecelerating = false
+                var toIndexPath = centerIndexPath
+                if distance < 0 {
+                    if toIndexPath.row == 0 {
+                        toIndexPath.section -= 1
+                        toIndexPath.row = viewModel.numberOfItems - 1
                     } else {
-                        if toIndexPath.row == viewModel.numberOfItems - 1 {
-                            toIndexPath.section += 1
-                            toIndexPath.row = 0
-                        } else {
-                            toIndexPath.row += 1
-                        }
+                        toIndexPath.row -= 1
                     }
-                    
-                    toCenteredSectionRow = toIndexPath.row
-                    collectionView(scrollToItemCenter: toIndexPath, animated: true)
+                } else {
+                    if toIndexPath.row == viewModel.numberOfItems - 1 {
+                        toIndexPath.section += 1
+                        toIndexPath.row = 0
+                    } else {
+                        toIndexPath.row += 1
+                    }
                 }
+                
+                toCenteredSectionRow = toIndexPath.row
+                collectionView(scrollToItemCenter: toIndexPath, animated: true)
             }
             
             lastScrollingOffset = currentOffset
             lastScrollingTime = currentTime
         }
     }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        isDecelerating = false
+    }
+    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if decelerate {
             // 무한 스크롤처럼 보이게 하기위해 사용자 스크롤 한번씩만 가능하도록 수정
             collectionView.isUserInteractionEnabled = false
         } else {
-            // 스와이프 모션 없이 손을 뗐을 때 cell 중앙 이동
-            collectionView(scrollToItemCenter: nowIndexPath, animated: true)
+            collectionView(scrollToItemCenter: centerIndexPath, animated: true)
         }
     }
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        isDecelerating = false
-    }
+    
     func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
         isDecelerating = true
     }
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         isDecelerating = false
     }
+    
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         guard let row = toCenteredSectionRow else { return }
         toCenteredSectionRow = nil

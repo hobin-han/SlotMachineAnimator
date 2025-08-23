@@ -17,7 +17,7 @@ final class SlotMachineViewModel {
         case rollEnded(finalIndex: Int)
     }
     
-    @Published var state: State = .idle
+    @Published private(set) var state: State = .idle
 
     /// Data Source
     private(set) var items: [SlotMachineCellConfiguration] = []
