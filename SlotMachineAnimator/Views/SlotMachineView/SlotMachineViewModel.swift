@@ -35,7 +35,7 @@ final class SlotMachineViewModel {
 
     init() {}
 
-    public func setItems(_ items: [SlotItemDTO]) {
+    func setItems(_ items: [SlotItemDTO]) {
         self.items = items
         state = .ready
     }
