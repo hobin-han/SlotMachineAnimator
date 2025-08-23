@@ -277,7 +277,7 @@ extension SlotMachineView: UICollectionViewDelegate, UICollectionViewDataSource 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as? SlotMachineCollectionViewCell else { return UICollectionViewCell() }
         let item = viewModel.items[indexPath.row]
-        cell.configure(title: item.title, backgroundImage: item.imageUrl, color: item.color)
+        cell.configure(item)
         return cell
     }
 }

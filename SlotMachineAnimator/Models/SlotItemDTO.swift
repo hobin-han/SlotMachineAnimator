@@ -10,8 +10,7 @@ import UIKit
 struct SlotItemDTO {
     let id: Int
     let title: String
-    let imageUrl: URL?
-    let color: UIColor
+    let imageUrl: String
     
     
     static func getItems() -> [Self] {
@@ -27,7 +26,21 @@ struct SlotItemDTO {
         ]
         
         return images.enumerated().map {
-            SlotItemDTO(id: $0.offset, title: "Ticket \(String($0.offset + 1))", imageUrl: URL(string: $0.element), color: UIColor.random)
+            SlotItemDTO(id: $0.offset, title: "Ticket \(String($0.offset + 1))", imageUrl: $0.element)
         }
+    }
+}
+
+extension SlotItemDTO: SlotMachineCellConfiguration {
+    var foregroundTitle: String? {
+        title
+    }
+    
+    var backgroundImageURL: URL? {
+        URL(string: imageUrl)
+    }
+    
+    var backgroundColor: UIColor? {
+        nil
     }
 }
