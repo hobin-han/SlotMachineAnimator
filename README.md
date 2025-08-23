@@ -1,4 +1,4 @@
-# Slot Machine Animator
+# Slot Machine Animator 🎰
 
 To-do (2025-08-23)
 - [ ] Refactor the codes (roughly)
