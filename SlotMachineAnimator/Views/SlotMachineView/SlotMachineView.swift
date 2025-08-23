@@ -16,12 +16,6 @@ class SlotMachineView: UIView {
     private let cellId = "SlotMachineCollectionViewCell"
     private let config: SlotMachineViewConfiguration
     
-    private var visibleCellConfigs: [(CGFloat, CGFloat)] {
-        var result = [(CGFloat, CGFloat)](repeating: (cellHeight, CGFloat(0.5)), count: config.visibleCount)
-        result[config.visibleCount / 2] = (centerCellHeight, 0)
-        return result
-    }
-    
     // 손으로 scroll 할때 정확히 cell 중앙에 위치하도록 설정을 위한 변수
     private var isDecelerating: Bool = false
     private var lastScrollingTime: TimeInterval?
@@ -50,6 +44,7 @@ class SlotMachineView: UIView {
     private func setupView() {
         flowLayout.delegate = self
         
+        let visibleCellConfigs = config.visibleCellConfigs
         let visibleHeight = visibleCellConfigs.reduce(0) { $0 + $1.0 }
         
         collectionView.delegate = self
@@ -109,7 +104,7 @@ class SlotMachineView: UIView {
         
         collectionView(scrollToItemCenter: toIndexPath, animated: false)
         flowLayout.centeredIndexPath = toIndexPath
-        collectionView.collectionViewLayout.invalidateLayout()
+        flowLayout.invalidateLayout()
         collectionView.layoutIfNeeded()
         
         // collectionView.layoutIfNeeded 호출되면서 간헐적으로 scrollViewDidScroll(zero offest)이 호출되는 경우가 있다
@@ -332,7 +327,7 @@ extension SlotMachineView: UIScrollViewDelegate {
         let toIndexPath = IndexPath(row: row, section: viewModel.numberOfSections / 2)
         collectionView(scrollToItemCenter: toIndexPath, animated: false)
         flowLayout.centeredIndexPath = toIndexPath
-        collectionView.collectionViewLayout.invalidateLayout()
+        flowLayout.invalidateLayout()
         collectionView.layoutIfNeeded()
         
         collectionView.isUserInteractionEnabled = true
