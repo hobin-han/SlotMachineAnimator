@@ -22,7 +22,7 @@ The video demonstrates how the slot machine spins, slows down, and precisely sto
 
 ### To-do
 
-#### (2025-08-23)
+#### (08.23.2025)
 - [x] Refactor the codes (roughly)
   - [x] add backgroundImage with remote image urls
 - [x] Make it scrollable by hand
